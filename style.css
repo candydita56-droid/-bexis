@@ -1,35 +1,22 @@
-/* GLOBAL RESET */
 body { margin: 0; padding: 0; background: #000; font-family: 'Courier New', monospace; overflow: hidden; }
-
-/* MAP CONTAINER */
 #map { height: 100vh; width: 100vw; z-index: 1; }
 
-/* HUD PANEL */
 #ui-overlay {
-    position: absolute;
-    top: 10px; left: 10px;
-    width: 300px;
-    z-index: 1000;
-    pointer-events: none; /* Clicks pass through */
+    position: absolute; top: 10px; left: 10px; width: 300px;
+    z-index: 1000; pointer-events: none;
 }
 
 .status-panel {
     background: rgba(0, 10, 0, 0.95);
-    border: 1px solid #0f0;
-    color: #0f0;
-    padding: 15px;
-    pointer-events: auto; /* Clicks work here */
-    box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+    border: 1px solid #0f0; color: #0f0; padding: 15px;
+    pointer-events: auto; box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
 }
 
-h2 { font-size: 14px; border-bottom: 1px solid #0f0; margin: 0 0 10px 0; text-align: center; letter-spacing: 2px; }
+h2 { font-size: 14px; border-bottom: 1px solid #0f0; margin: 0 0 10px 0; text-align: center; }
 #data-stream { font-size: 11px; margin-bottom: 10px; color: #6f6; }
-#scan-readout { font-weight: bold; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 5px #0f0; }
-
-/* CONFIDENCE BAR */
+#scan-readout { font-weight: bold; font-size: 12px; margin-bottom: 5px; text-transform: uppercase; }
 #confidence-meter { height: 6px; background: #0f0; width: 0%; margin-bottom: 15px; transition: width 0.3s; }
 
-/* BUTTONS */
 button {
     background: #000; color: #0f0; border: 1px solid #0f0;
     padding: 12px; width: 100%; margin-bottom: 8px;
@@ -38,46 +25,35 @@ button {
 }
 button:hover { background: #0f0; color: #000; }
 button.active { background: #f00; color: #000; border-color: #f00; animation: pulse 1s infinite; }
-
-/* INSTRUCTIONS */
 #instruction-text { color: #f00; font-size: 11px; margin-top: 5px; text-align: center; font-weight: bold; animation: blink 1s infinite; }
 
-/* DRAG BOX */
 #selection-box {
-    position: absolute;
-    border: 2px dashed #f00;
-    background: rgba(255, 0, 0, 0.15);
-    display: none;
-    z-index: 2000;
-    pointer-events: none;
+    position: absolute; border: 2px dashed #f00;
+    background: rgba(255, 0, 0, 0.15); display: none;
+    z-index: 2000; pointer-events: none;
 }
 
-/* DATABASE OVERLAY */
+/* DATABASE STYLES */
 #database-overlay {
     position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(0, 0, 0, 0.9);
-    z-index: 3000;
+    background: rgba(0, 0, 0, 0.95); z-index: 3000;
     display: flex; flex-direction: column;
 }
-.db-header { padding: 20px; border-bottom: 1px solid #0f0; display: flex; justify-content: space-between; align-items: center; background: #000; }
+.db-header { padding: 15px; border-bottom: 1px solid #0f0; display: flex; justify-content: space-between; align-items: center; background: #000; }
 .db-header h2 { color: #0f0; margin: 0; border: none; }
 .close-btn { width: auto; padding: 5px 15px; margin: 0; }
 
 #db-grid {
     flex: 1; overflow-y: auto; padding: 20px;
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 20px;
 }
 
-/* DATABASE ITEM CARD */
-.db-item { border: 1px solid #333; background: #111; padding: 10px; }
-.db-item img { width: 100%; height: auto; border: 1px solid #555; margin-bottom: 10px; }
-.db-info { font-size: 10px; color: #aaa; margin-bottom: 10px; }
-.verify-btn { padding: 5px; font-size: 10px; margin-bottom: 2px; }
-.btn-yes { border-color: #0f0; color: #0f0; }
-.btn-no { border-color: #f00; color: #f00; }
-.btn-yes:hover { background: #0f0; color: #000; }
-.btn-no:hover { background: #f00; color: #000; }
+.db-item { border: 1px solid #333; background: #0a0a0a; padding: 10px; }
+.db-item img { width: 100%; height: auto; border: 1px solid #333; margin-bottom: 10px; }
+.db-info { font-size: 10px; color: #aaa; margin-bottom: 10px; line-height: 1.4; }
+.coord-link { color: #0f0; text-decoration: none; border: 1px solid #0f0; padding: 5px; display: block; text-align: center; margin-top: 5px; }
+.coord-link:hover { background: #0f0; color: #000; }
 
 @keyframes blink { 50% { opacity: 0; } }
 @keyframes pulse { 50% { box-shadow: 0 0 15px #f00; } }
