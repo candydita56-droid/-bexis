@@ -1,5 +1,6 @@
 // --- CONFIGURATION ---
-const URL_MODEL = "https://teachablemachine.withgoogle.com/models/2KNvF2Sda/";
+// YOUR NEW CUSTOM MODEL (FLORIDA NORMAL + DETROIT RUINS)
+const URL_MODEL = "https://teachablemachine.withgoogle.com/models/jwqNmPsQ0/";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDgFj6bpL_rrzdnv5LcoeXd-VTYWyhahDk",
@@ -17,11 +18,11 @@ try {
     console.log("Uplink Established.");
 } catch (e) { console.warn("Offline Mode"); }
 
-// MAP SETUP - FLORIDA CENTER
+// MAP SETUP - FLORIDA CENTER (Zoomed out to see the state)
 const map = L.map('map', { 
     zoomControl: false, 
     attributionControl: false 
-}).setView([27.6648, -81.5158], 7); // <-- CHANGED TO FLORIDA, ZOOM 7
+}).setView([27.6648, -81.5158], 7); 
 
 // SATELLITE TILES
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -137,7 +138,7 @@ function endDraw() {
     box.style.display = 'none';
 }
 
-// --- TURBO SCANNER ---
+// --- TURBO SCANNER (Unlimited Speed) ---
 window.cancelScan = function() {
     isScanning = false;
     document.getElementById('progress-overlay').style.display = 'none';
@@ -151,7 +152,7 @@ async function startTurboScan(north, south, west, east) {
     const bar = document.getElementById('progress-fill');
     const txt = document.getElementById('progress-text');
     overlay.style.display = 'flex';
-    txt.innerText = "CALCULATING GRID...";
+    txt.innerText = "CALCULATING SECTOR GRID...";
 
     const ZOOM = 19;
     const tl = latLngToTile(north, west, ZOOM);
@@ -164,8 +165,9 @@ async function startTurboScan(north, south, west, east) {
         }
     }
 
-    if (tiles.length > 500) {
-        if(!confirm(`Warning: This selection contains ${tiles.length} sectors. Continue?`)) {
+    // WARN IF HUGE (Over 1000 sectors)
+    if (tiles.length > 1000) {
+        if(!confirm(`Warning: Massive area selected (${tiles.length} sectors). Proceed?`)) {
             cancelScan();
             return;
         }
@@ -175,6 +177,7 @@ async function startTurboScan(north, south, west, east) {
     let processed = 0;
     let found = 0;
 
+    // PROCESS LOOP
     for (let i = 0; i < total; i++) {
         if (!isScanning) break;
 
@@ -194,13 +197,14 @@ async function startTurboScan(north, south, west, east) {
         processed++;
         const pct = Math.round((processed / total) * 100);
         bar.style.width = pct + "%";
-        txt.innerText = `SCANNING... ${pct}% (${found} FOUND)`;
+        txt.innerText = `SCANNING SECTOR... ${pct}% (${found} DETECTED)`;
         
-        if (i % 5 === 0) await new Promise(r => setTimeout(r, 10));
+        // Anti-freeze delay (very small)
+        if (i % 10 === 0) await new Promise(r => setTimeout(r, 5));
     }
 
     if(isScanning) {
-        txt.innerText = "DONE.";
+        txt.innerText = "MISSION COMPLETE.";
         setTimeout(() => { overlay.style.display = 'none'; }, 2000);
     }
 }
@@ -212,8 +216,10 @@ function scanImage(url) {
         img.src = url;
         img.onload = async () => {
             const prediction = await model.predict(img);
+            // CHECK FOR 'Abandoned' CLASS
             const abandon = prediction.find(p => p.className === "Abandoned");
-            if (abandon && abandon.probability > 0.75) {
+            // Threshold set to 80% to reduce false alarms on normal houses
+            if (abandon && abandon.probability > 0.80) {
                 resolve(abandon.probability);
             } else {
                 resolve(false);
@@ -223,7 +229,7 @@ function scanImage(url) {
     });
 }
 
-// --- DATABASE ---
+// --- DATABASE SYNC ---
 function saveTarget(confidence, imgUrl, latlng) {
     const locId = Date.now() + Math.random().toString(36).substr(2, 5);
     firebase.database().ref('discovery/' + locId).set({
@@ -240,7 +246,7 @@ window.toggleDatabase = function() {
     const grid = document.getElementById('db-grid');
     if (el.style.display === 'none') {
         el.style.display = 'flex';
-        grid.innerHTML = '<div style="color:#0f0;">LOADING ARCHIVES...</div>';
+        grid.innerHTML = '<div style="color:#0f0;">LOADING INTEL...</div>';
         firebase.database().ref('discovery/').once('value', (snapshot) => {
             grid.innerHTML = '';
             const data = snapshot.val();
@@ -249,13 +255,13 @@ window.toggleDatabase = function() {
                     const item = data[key];
                     const div = document.createElement('div');
                     div.className = 'db-item';
-                    const gmapsUrl = `https://www.google.com/maps/search/?api=1&query=${item.lat},${item.lng}`;
+                    const gmapsUrl = `http://maps.google.com/maps?q=${item.lat},${item.lng}&ll=${item.lat},${item.lng}&t=k`;
                     div.innerHTML = `
                         <img src="${item.image}" />
                         <div class="db-info">
-                            CONF: ${(item.confidence*100).toFixed(0)}%
+                            CONFIDENCE: ${(item.confidence*100).toFixed(0)}%
                         </div>
-                        <a href="${gmapsUrl}" target="_blank" class="coord-link">OPEN MAPS</a>
+                        <a href="${gmapsUrl}" target="_blank" class="coord-link">OPEN GOOGLE MAPS</a>
                     `;
                     grid.appendChild(div);
                 });
